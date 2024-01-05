@@ -188,7 +188,7 @@ train_dataloader = dict(
         data_prefix=dict(img='Images/'),
         pipeline=train_pipeline))
 val_dataloader = dict(
-    batch_size=4,
+    batch_size=1,
     num_workers=2,
     persistent_workers=True,
     drop_last=False,
@@ -197,11 +197,11 @@ val_dataloader = dict(
         type=dataset_type,
         metainfo=metainfo,
         data_root=data_root,
-        ann_file='val.json',
+        ann_file='test_one.json',
         data_prefix=dict(img='Images/'),
         pipeline=test_pipeline))
 test_dataloader = dict(
-    batch_size=4,
+    batch_size=1,
     num_workers=2,
     persistent_workers=True,
     drop_last=False,
@@ -210,18 +210,18 @@ test_dataloader = dict(
         type=dataset_type,
         metainfo=metainfo,
         data_root=data_root,
-        ann_file='test.json',
+        ann_file='test_one.json',
         data_prefix=dict(img='Images/'),
         pipeline=test_pipeline))
 
 val_evaluator = dict(
     type='CrowdHumanMetric',
-    ann_file=data_root + '/val.json',
+    ann_file=data_root + '/test_one.json',
     metric=['AP', 'MR', 'JI'],
     backend_args=backend_args)
 test_evaluator = dict(
     type='CrowdHumanMetric',
-    ann_file=data_root + '/test.json',
+    ann_file=data_root + '/test_one.json',
     metric=['AP', 'MR', 'JI'],
     backend_args=backend_args)
 
