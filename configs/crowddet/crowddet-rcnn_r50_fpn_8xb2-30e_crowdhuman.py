@@ -130,8 +130,14 @@ model = dict(
             score_thr=0.01,
             max_per_img=500)))
 
-dataset_type = 'CrowdHumanDataset'
-data_root = 'data/CrowdHuman/'
+dataset_type = 'CocoDataset'
+data_root = '/home/tzh/Project/WiderPerson/data'
+metainfo = {
+    'calsses': ('human',),
+    'palette':[
+        (220, 20, 60),
+    ]
+}
 
 # Example to use different file client
 # Method 1: simply set the data root and let the file I/O module
@@ -176,34 +182,48 @@ train_dataloader = dict(
     batch_sampler=None,  # The 'batch_sampler' may decrease the precision
     dataset=dict(
         type=dataset_type,
+        metainfo=metainfo,
         data_root=data_root,
-        ann_file='annotation_train.odgt',
+        ann_file='val.json',
         data_prefix=dict(img='Images/'),
-        filter_cfg=dict(filter_empty_gt=True, min_size=32),
-        pipeline=train_pipeline,
-        backend_args=backend_args))
+        pipeline=train_pipeline))
 val_dataloader = dict(
-    batch_size=1,
+    batch_size=4,
     num_workers=2,
     persistent_workers=True,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=False),
     dataset=dict(
         type=dataset_type,
+        metainfo=metainfo,
         data_root=data_root,
-        ann_file='annotation_val.odgt',
+        ann_file='val.json',
         data_prefix=dict(img='Images/'),
-        test_mode=True,
-        pipeline=test_pipeline,
-        backend_args=backend_args))
-test_dataloader = val_dataloader
+        pipeline=test_pipeline))
+test_dataloader = dict(
+    batch_size=4,
+    num_workers=2,
+    persistent_workers=True,
+    drop_last=False,
+    sampler=dict(type='DefaultSampler', shuffle=False),
+    dataset=dict(
+        type=dataset_type,
+        metainfo=metainfo,
+        data_root=data_root,
+        ann_file='test.json',
+        data_prefix=dict(img='Images/'),
+        pipeline=test_pipeline))
 
 val_evaluator = dict(
     type='CrowdHumanMetric',
-    ann_file=data_root + 'annotation_val.odgt',
+    ann_file=data_root + '/val.json',
     metric=['AP', 'MR', 'JI'],
     backend_args=backend_args)
-test_evaluator = val_evaluator
+test_evaluator = dict(
+    type='CrowdHumanMetric',
+    ann_file=data_root + '/test.json',
+    metric=['AP', 'MR', 'JI'],
+    backend_args=backend_args)
 
 train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=30, val_interval=1)
 val_cfg = dict(type='ValLoop')
