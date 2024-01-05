@@ -124,7 +124,6 @@ class CrowdHumanMetric(BaseMetric):
         bbox_json_results = []
         for i, result in enumerate(results):
             ann, pred = result
-            print(ann)
             dump_dict = dict()
             dump_dict['ID'] = ann['ID']
             dump_dict['width'] = ann['width']
@@ -235,8 +234,6 @@ class CrowdHumanMetric(BaseMetric):
 
         pred_records = load(result_file, backend_args=self.backend_args)
         eval_samples = dict()
-        print(gt_records)
-        print(pred_records)
         for gt_record, pred_record in zip(gt_records, pred_records):
             assert gt_record['ID'] == pred_record['ID'], \
                 'please set val_dataloader.sampler.shuffle=False and try again'
