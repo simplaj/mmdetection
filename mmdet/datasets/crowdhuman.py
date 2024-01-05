@@ -30,7 +30,7 @@ class CrowdHumanDataset(BaseDetDataset):
     """
 
     METAINFO = {
-        'classes': ('person', ),
+        'classes': ('pedestrains', ),
         # palette is a list of color tuples, which is used for visualization.
         'palette': [(220, 20, 60)]
     }
