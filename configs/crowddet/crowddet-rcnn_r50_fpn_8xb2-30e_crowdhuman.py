@@ -130,10 +130,10 @@ model = dict(
             score_thr=0.01,
             max_per_img=500)))
 
-dataset_type = 'CocoDataset'
+dataset_type = 'CrowdHumanDataset'
 data_root = '/home/tzh/Project/WiderPerson/data'
 metainfo = {
-    'calsses': ('human',),
+    'calsses': ('pedestrains',),
     'palette':[
         (220, 20, 60),
     ]
@@ -184,7 +184,7 @@ train_dataloader = dict(
         type=dataset_type,
         metainfo=metainfo,
         data_root=data_root,
-        ann_file='val.json',
+        ann_file='train.odgt',
         data_prefix=dict(img='Images/'),
         pipeline=train_pipeline))
 val_dataloader = dict(
@@ -197,7 +197,7 @@ val_dataloader = dict(
         type=dataset_type,
         metainfo=metainfo,
         data_root=data_root,
-        ann_file='test_one.json',
+        ann_file='val.odgt',
         data_prefix=dict(img='Images/'),
         pipeline=test_pipeline))
 test_dataloader = dict(
@@ -210,18 +210,18 @@ test_dataloader = dict(
         type=dataset_type,
         metainfo=metainfo,
         data_root=data_root,
-        ann_file='test_one.json',
+        ann_file='test.odgt',
         data_prefix=dict(img='Images/'),
         pipeline=test_pipeline))
 
 val_evaluator = dict(
     type='CrowdHumanMetric',
-    ann_file=data_root + '/test_one.json',
+    ann_file=data_root + '/val.odgt',
     metric=['AP', 'MR', 'JI'],
     backend_args=backend_args)
 test_evaluator = dict(
     type='CrowdHumanMetric',
-    ann_file=data_root + '/test_one.json',
+    ann_file=data_root + '/test.odgt',
     metric=['AP', 'MR', 'JI'],
     backend_args=backend_args)
 
