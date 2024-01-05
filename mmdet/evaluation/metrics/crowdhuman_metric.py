@@ -124,6 +124,7 @@ class CrowdHumanMetric(BaseMetric):
         bbox_json_results = []
         for i, result in enumerate(results):
             ann, pred = result
+            print(ann)
             dump_dict = dict()
             dump_dict['ID'] = ann['ID']
             dump_dict['width'] = ann['width']
@@ -234,6 +235,8 @@ class CrowdHumanMetric(BaseMetric):
 
         pred_records = load(result_file, backend_args=self.backend_args)
         eval_samples = dict()
+        print(gt_records)
+        print(pred_records)
         for gt_record, pred_record in zip(gt_records, pred_records):
             assert gt_record['ID'] == pred_record['ID'], \
                 'please set val_dataloader.sampler.shuffle=False and try again'
@@ -650,10 +653,10 @@ class Image(object):
                 if 'ignore' in rb['head_attr']:
                     if rb['head_attr']['ignore'] != 0:
                         head_tag = -1
-            head_bbox.append(np.hstack((rb['hbox'], head_tag)))
-            body_bbox.append(np.hstack((rb['fbox'], body_tag)))
-        head_bbox = np.array(head_bbox)
-        head_bbox[:, 2:4] += head_bbox[:, :2]
+            # head_bbox.append(np.hstack((rb['hbox'], head_tag)))
+            body_bbox.append(np.hstack((rb['bbox'], body_tag)))
+        # head_bbox = np.array(head_bbox)
+        # head_bbox[:, 2:4] += head_bbox[:, :2]
         body_bbox = np.array(body_bbox)
         body_bbox[:, 2:4] += body_bbox[:, :2]
         return body_bbox, head_bbox
