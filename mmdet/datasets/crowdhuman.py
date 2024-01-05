@@ -43,21 +43,22 @@ class CrowdHumanDataset(BaseDetDataset):
             self.extra_ann_exist = True
             self.extra_anns = load(extra_ann_file)
         else:
-            ann_file_name = osp.basename(ann_file)
-            if 'train' in ann_file_name:
-                self.extra_ann_file = osp.join(data_root, 'id_hw_train.json')
-            elif 'val' in ann_file_name:
-                self.extra_ann_file = osp.join(data_root, 'id_hw_val.json')
-            self.extra_ann_exist = False
-            if not osp.isfile(self.extra_ann_file):
-                print_log(
-                    'extra_ann_file does not exist, prepare to collect '
-                    'image height and width...',
-                    level=logging.INFO)
-                self.extra_anns = {}
-            else:
-                self.extra_ann_exist = True
-                self.extra_anns = load(self.extra_ann_file)
+            pass
+            # ann_file_name = osp.basename(ann_file)
+            # if 'train' in ann_file_name:
+            #     self.extra_ann_file = osp.join(data_root, 'id_hw_train.json')
+            # elif 'val' in ann_file_name:
+            #     self.extra_ann_file = osp.join(data_root, 'id_hw_val.json')
+            # self.extra_ann_exist = False
+            # if not osp.isfile(self.extra_ann_file):
+            #     print_log(
+            #         'extra_ann_file does not exist, prepare to collect '
+            #         'image height and width...',
+            #         level=logging.INFO)
+            #     self.extra_anns = {}
+            # else:
+            #     self.extra_ann_exist = True
+            #     self.extra_anns = load(self.extra_ann_file)
         super().__init__(data_root=data_root, ann_file=ann_file, **kwargs)
 
     def load_data_list(self) -> List[dict]:
@@ -76,21 +77,21 @@ class CrowdHumanDataset(BaseDetDataset):
             parsed_data_info = self.parse_data_info(anno_dict)
             data_list.append(parsed_data_info)
             prog_bar.update()
-        if not self.extra_ann_exist and get_rank() == 0:
-            #  TODO: support file client
-            try:
-                dump(self.extra_anns, self.extra_ann_file, file_format='json')
-            except:  # noqa
-                warnings.warn(
-                    'Cache files can not be saved automatically! To speed up'
-                    'loading the dataset, please manually generate the cache'
-                    ' file by file tools/misc/get_crowdhuman_id_hw.py')
+        # if not self.extra_ann_exist and get_rank() == 0:
+        #     #  TODO: support file client
+        #     try:
+        #         dump(self.extra_anns, self.extra_ann_file, file_format='json')
+        #     except:  # noqa
+        #         warnings.warn(
+        #             'Cache files can not be saved automatically! To speed up'
+        #             'loading the dataset, please manually generate the cache'
+        #             ' file by file tools/misc/get_crowdhuman_id_hw.py')
 
-            print_log(
-                f'\nsave extra_ann_file in {self.data_root}',
-                level=logging.INFO)
+        #     print_log(
+        #         f'\nsave extra_ann_file in {self.data_root}',
+        #         level=logging.INFO)
 
-        del self.extra_anns
+        # del self.extra_anns
         print_log('\nDone', level=logging.INFO)
         return data_list
 
@@ -108,16 +109,19 @@ class CrowdHumanDataset(BaseDetDataset):
                             f"{raw_data_info['ID']}.jpg")
         data_info['img_path'] = img_path
         data_info['img_id'] = raw_data_info['ID']
-
-        if not self.extra_ann_exist:
-            img_bytes = get(img_path, backend_args=self.backend_args)
-            img = mmcv.imfrombytes(img_bytes, backend='cv2')
-            data_info['height'], data_info['width'] = img.shape[:2]
-            self.extra_anns[raw_data_info['ID']] = img.shape[:2]
-            del img, img_bytes
+        if 'width' in raw_data_info.keys():
+            data_info['height'], data_info['width'] = \
+                raw_data_info['height'], raw_data_info['width']
         else:
-            data_info['height'], data_info['width'] = self.extra_anns[
-                raw_data_info['ID']]
+            if not self.extra_ann_exist:
+                img_bytes = get(img_path, backend_args=self.backend_args)
+                img = mmcv.imfrombytes(img_bytes, backend='cv2')
+                data_info['height'], data_info['width'] = img.shape[:2]
+                self.extra_anns[raw_data_info['ID']] = img.shape[:2]
+                del img, img_bytes
+            else:
+                data_info['height'], data_info['width'] = self.extra_anns[
+                    raw_data_info['ID']]
 
         instances = []
         for i, ann in enumerate(raw_data_info['gtboxes']):
@@ -135,7 +139,7 @@ class CrowdHumanDataset(BaseDetDataset):
                         instance['bbox_label'] = -1
                         instance['ignore_flag'] = 1
 
-            x1, y1, w, h = ann['fbox']
+            x1, y1, w, h = ann['bbox']
             bbox = [x1, y1, x1 + w, y1 + h]
             instance['bbox'] = bbox
 
@@ -144,14 +148,14 @@ class CrowdHumanDataset(BaseDetDataset):
             # this information, you just need to design the pipeline
             # instead of overriding the CrowdHumanDataset.
             instance['fbox'] = bbox
-            hbox = ann['hbox']
-            instance['hbox'] = [
-                hbox[0], hbox[1], hbox[0] + hbox[2], hbox[1] + hbox[3]
-            ]
-            vbox = ann['vbox']
-            instance['vbox'] = [
-                vbox[0], vbox[1], vbox[0] + vbox[2], vbox[1] + vbox[3]
-            ]
+            # hbox = ann['hbox']
+            # instance['hbox'] = [
+            #     hbox[0], hbox[1], hbox[0] + hbox[2], hbox[1] + hbox[3]
+            # ]
+            # vbox = ann['vbox']
+            # instance['vbox'] = [
+            #     vbox[0], vbox[1], vbox[0] + vbox[2], vbox[1] + vbox[3]
+            # ]
 
             instances.append(instance)
 
