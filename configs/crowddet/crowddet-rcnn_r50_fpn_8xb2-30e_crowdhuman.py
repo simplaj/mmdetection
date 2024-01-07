@@ -133,7 +133,7 @@ model = dict(
 dataset_type = 'CrowdHumanDataset'
 data_root = '/home/tzh/Project/WiderPerson/data'
 metainfo = {
-    'calsses': ('pedestrains',),
+    'calsses': ('pedestrains', 'partially-visible persons'),
     'palette':[
         (220, 20, 60),
     ]
@@ -175,7 +175,7 @@ test_pipeline = [
 ]
 
 train_dataloader = dict(
-    batch_size=2,
+    batch_size=1,
     num_workers=4,
     persistent_workers=True,
     sampler=dict(type='DefaultSampler', shuffle=True),
@@ -245,3 +245,5 @@ auto_scale_lr = dict(base_batch_size=16)
 optim_wrapper = dict(
     type='OptimWrapper',
     optimizer=dict(type='SGD', lr=0.002, momentum=0.9, weight_decay=0.0001))
+resume = True
+load_from = None

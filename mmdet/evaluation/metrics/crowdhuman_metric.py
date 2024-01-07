@@ -17,7 +17,7 @@ from scipy.sparse.csgraph import maximum_bipartite_matching
 from mmdet.evaluation.functional.bbox_overlaps import bbox_overlaps
 from mmdet.registry import METRICS
 
-PERSON_CLASSES = ['background', 'person']
+PERSON_CLASSES = ['background', 'pedestrains']
 
 
 @METRICS.register_module()
