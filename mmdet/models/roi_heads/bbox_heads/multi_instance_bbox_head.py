@@ -405,18 +405,20 @@ class MultiInstanceBBoxHead(BBoxHead):
                 br_y].
             bbox_weights (Tensor): Regression weights for all proposals in a
                 batch, has shape (batch_size * num_proposals_single_image,
-                4 * k).
+                cc * k).
 
         Returns:
             dict: A dictionary of loss.
         """
+        cc, cb = cls_score.shape[-1], bbox_pred.shape[-1]
+        mid_cc, mid_cb = cc // 2, cb // 2
         losses = dict()
         if bbox_pred.numel():
-            loss_0 = self.emd_loss(bbox_pred[:, 0:4], cls_score[:, 0:2],
-                                   bbox_pred[:, 4:8], cls_score[:, 2:4],
+            loss_0 = self.emd_loss(bbox_pred[:, 0:mid_cb], cls_score[:, 0:mid_cc],
+                                   bbox_pred[:, mid_cb:cb], cls_score[:, mid_cc:cc],
                                    bbox_targets, labels)
-            loss_1 = self.emd_loss(bbox_pred[:, 4:8], cls_score[:, 2:4],
-                                   bbox_pred[:, 0:4], cls_score[:, 0:2],
+            loss_1 = self.emd_loss(bbox_pred[:, mid_cb:cb], cls_score[:, mid_cc:cc],
+                                   bbox_pred[:, 0:mid_cb], cls_score[:, 0:mid_cc],
                                    bbox_targets, labels)
             loss = torch.cat([loss_0, loss_1], dim=1)
             _, min_indices = loss.min(dim=1)
@@ -478,7 +480,11 @@ class MultiInstanceBBoxHead(BBoxHead):
 
         # loss for regression
         loss_bbox = self.loss_bbox(bbox_pred, targets[fg_masks])
-        loss_bbox = loss_bbox.sum(dim=1)
+        try:
+            loss_bbox = loss_bbox.sum(dim=1) 
+        except:
+            print(loss_bbox)
+            loss_bbox = 0
 
         # loss for classification
         labels = labels * valid_masks

@@ -32,7 +32,7 @@ class CrowdHumanDataset(BaseDetDataset):
     METAINFO = {
         'classes': ('pedestrains', ),
         # palette is a list of color tuples, which is used for visualization.
-        'palette': [(220, 20, 60)]
+        'palette': [(0, 0, 255), ]
     }
 
     def __init__(self, data_root, ann_file, extra_ann_file=None, **kwargs):
@@ -156,6 +156,7 @@ class CrowdHumanDataset(BaseDetDataset):
             # instance['vbox'] = [
             #     vbox[0], vbox[1], vbox[0] + vbox[2], vbox[1] + vbox[3]
             # ]
+            print(instance)
 
             instances.append(instance)
 

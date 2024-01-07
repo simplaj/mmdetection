@@ -133,9 +133,9 @@ model = dict(
 dataset_type = 'CrowdHumanDataset'
 data_root = '/home/tzh/Project/WiderPerson/data'
 metainfo = {
-    'calsses': ('pedestrains', 'partially-visible persons'),
+    'calsses': ('pedestrains'),
     'palette':[
-        (220, 20, 60),
+        (0, 0, 255)
     ]
 }
 
